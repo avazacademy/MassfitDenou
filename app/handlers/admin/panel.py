@@ -11,13 +11,13 @@ router = Router()
 @router.message(Command('admin'))
 async def cmd_admin(message: Message):
     if str(message.from_user.id) != str(ADMIN_ID):
-        await message.answer("⛔️ You don't have permission to access the admin panel.")
+        await message.answer("⛔️ Sizda admin panelga kirish huquqi yo'q.")
         return
     
     await message.answer(
-        "🔐 <b>Welcome to the Admin Panel</b>\n\n"
-        "Here you can manage products and view statistics.\n"
-        "Choose an option below:",
+        "🔐 <b>Admin Panelga xush kelibsiz</b>\n\n"
+        "Bu yerda siz mahsulotlarni boshqarishingiz va statistikani ko'rishingiz mumkin.\n"
+        "Quyidagi variantlardan birini tanlang:",
         reply_markup=get_admin_panel_keyboard()
     )
 
@@ -26,9 +26,9 @@ async def cmd_admin(message: Message):
 async def show_admin_panel(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     await callback.message.edit_text(
-        "🔐 <b>Welcome to the Admin Panel</b>\n\n"
-        "Here you can manage products and view statistics.\n"
-        "Choose an option below:",
+        "🔐 <b>Admin Panelga xush kelibsiz</b>\n\n"
+        "Bu yerda siz mahsulotlarni boshqarishingiz va statistikani ko'rishingiz mumkin.\n"
+        "Quyidagi variantlardan birini tanlang:",
         reply_markup=get_admin_panel_keyboard()
     )
     await callback.answer()

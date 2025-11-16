@@ -13,7 +13,7 @@ class OrderStates(StatesGroup):
     waiting_for_delivery_location = State()
 
 
-@router.message(F.text == "📦 My Orders")
+@router.message(F.text == "📦 Mening buyurtmalarim")
 async def my_orders(message: Message):
     from app.database.requests import get_user_by_tg_id
     from app.database.order_requests import get_basket_items
@@ -22,16 +22,16 @@ async def my_orders(message: Message):
         user = await get_user_by_tg_id(session, message.from_user.id)
         
         if not user:
-            await message.answer("User not found!")
+            await message.answer("Foydalanuvchi topilmadi!")
             return
         
         basket_items = await get_basket_items(session, user.id)
         
         if not basket_items:
             await message.answer(
-                "🛒 <b>My Basket</b>\n\n"
-                "Your basket is empty.\n"
-                "Add products to your basket to create an order!"
+                "🛒 <b>Mening savatim</b>\n\n"
+                "Savatingiz bo'sh.\n"
+                "Buyurtma yaratish uchun mahsulotlarni savatga qo'shing!"
             )
             return
         
@@ -43,13 +43,13 @@ async def my_orders(message: Message):
             product = item.product
             item_total = float(product.price) * item.quantity
             total += item_total
-            items_text += f"• {product.name}\n  💰 ${product.price} x {item.quantity} = ${item_total:.2f}\n\n"
+            items_text += f"• {product.name}\n  💰 {product.price} so'm x {item.quantity} = {item_total:.2f} so'm\n\n"
         
         text = (
-            f"🛒 <b>My Basket</b>\n\n"
+            f"🛒 <b>Mening savatim</b>\n\n"
             f"{items_text}"
             f"━━━━━━━━━━━━━━━\n"
-            f"💵 <b>Total: ${total:.2f}</b>"
+            f"💵 <b>Jami: {total:.2f} so'm</b>"
         )
         
         keyboard = []
@@ -60,7 +60,7 @@ async def my_orders(message: Message):
                 InlineKeyboardButton(text="➕", callback_data=f"basket_inc_{item.product_id}_{item.quantity}")
             ])
         
-        keyboard.append([InlineKeyboardButton(text="✅ Confirm Order", callback_data="confirm_order_prompt")])
+        keyboard.append([InlineKeyboardButton(text="✅ Buyurtmani tasdiqlash", callback_data="confirm_order_prompt")])
         
         await message.answer(text, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard))
 
@@ -89,13 +89,13 @@ async def basket_increase(callback: CallbackQuery):
             product = item.product
             item_total = float(product.price) * item.quantity
             total += item_total
-            items_text += f"• {product.name}\n  💰 ${product.price} x {item.quantity} = ${item_total:.2f}\n\n"
+            items_text += f"• {product.name}\n  💰 {product.price} so'm x {item.quantity} = {item_total:.2f} so'm\n\n"
         
         text = (
-            f"🛒 <b>My Basket</b>\n\n"
+            f"🛒 <b>Mening savatim</b>\n\n"
             f"{items_text}"
             f"━━━━━━━━━━━━━━━\n"
-            f"💵 <b>Total: ${total:.2f}</b>"
+            f"💵 <b>Jami: {total:.2f} so'm</b>"
         )
         
         keyboard = []
@@ -106,7 +106,7 @@ async def basket_increase(callback: CallbackQuery):
                 InlineKeyboardButton(text="➕", callback_data=f"basket_inc_{item.product_id}_{item.quantity}")
             ])
         
-        keyboard.append([InlineKeyboardButton(text="✅ Confirm Order", callback_data="confirm_order_prompt")])
+        keyboard.append([InlineKeyboardButton(text="✅ Buyurtmani tasdiqlash", callback_data="confirm_order_prompt")])
         
         await callback.message.edit_text(text, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard))
     
@@ -131,9 +131,9 @@ async def basket_decrease(callback: CallbackQuery):
         
         if not basket_items:
             await callback.message.edit_text(
-                "🛒 <b>My Basket</b>\n\n"
-                "Your basket is empty.\n"
-                "Add products to your basket to create an order!"
+                "🛒 <b>Mening savatim</b>\n\n"
+                "Savat bo'sh.\n"
+                "Buyurtma yaratish uchun mahsulotlarni savatga qo'shing!"
             )
             await callback.answer()
             return
@@ -146,13 +146,13 @@ async def basket_decrease(callback: CallbackQuery):
             product = item.product
             item_total = float(product.price) * item.quantity
             total += item_total
-            items_text += f"• {product.name}\n  💰 ${product.price} x {item.quantity} = ${item_total:.2f}\n\n"
+            items_text += f"• {product.name}\n  💰 {product.price} so'm x {item.quantity} = {item_total:.2f} so'm\n\n"
         
         text = (
-            f"🛒 <b>My Basket</b>\n\n"
+            f"🛒 <b>Mening savatim</b>\n\n"
             f"{items_text}"
             f"━━━━━━━━━━━━━━━\n"
-            f"💵 <b>Total: ${total:.2f}</b>"
+            f"💵 <b>Jami: {total:.2f} so'm</b>"
         )
         
         keyboard = []
@@ -163,7 +163,7 @@ async def basket_decrease(callback: CallbackQuery):
                 InlineKeyboardButton(text="➕", callback_data=f"basket_inc_{item.product_id}_{item.quantity}")
             ])
         
-        keyboard.append([InlineKeyboardButton(text="✅ Confirm Order", callback_data="confirm_order_prompt")])
+        keyboard.append([InlineKeyboardButton(text="✅ Buyurtmani tasdiqlash", callback_data="confirm_order_prompt")])
         
         await callback.message.edit_text(text, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard))
     
@@ -175,15 +175,15 @@ async def confirm_order_prompt(callback: CallbackQuery):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [
-                InlineKeyboardButton(text="🏢 Pick Up", callback_data="order_pickup"),
-                InlineKeyboardButton(text="🚚 Delivery", callback_data="order_delivery")
+                InlineKeyboardButton(text="🏢 Olish uchun", callback_data="order_pickup"),
+                InlineKeyboardButton(text="🚚 Yetkazib berish", callback_data="order_delivery")
             ]
         ]
     )
     
     await callback.message.edit_text(
-        "📦 <b>How would you like to receive your order?</b>\n\n"
-        "Choose delivery method:",
+        "📦 <b>Buyurtmangizni qanday olishni xohlaysiz?</b>\n\n"
+        "Yetkazib berish usulini tanlang:",
         reply_markup=keyboard
     )
     await callback.answer()
@@ -192,9 +192,9 @@ async def confirm_order_prompt(callback: CallbackQuery):
 @router.callback_query(F.data == "order_delivery")
 async def order_delivery_request_location(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_text(
-        "📍 <b>Delivery Address</b>\n\n"
-        "Please share your location for delivery.\n"
-        "Use the 📎 attachment button to send your location."
+        "📍 <b>Yetkazib berish manzili</b>\n\n"
+        "Iltimos, yetkazib berish uchun joylashuvingizni yuboring.\n"
+        "Joylashuvingizni yuborish uchun 📎 qo'shimcha tugmasidan foydalaning."
     )
     await state.set_state(OrderStates.waiting_for_delivery_location)
     await callback.answer()
@@ -214,17 +214,17 @@ async def process_delivery_location(message: Message, state: FSMContext):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [
-                InlineKeyboardButton(text="✅ Yes", callback_data="confirm_order_yes_delivery"),
-                InlineKeyboardButton(text="❌ No", callback_data="confirm_order_no")
+                InlineKeyboardButton(text="✅ Ha", callback_data="confirm_order_yes_delivery"),
+                InlineKeyboardButton(text="❌ Yo'q", callback_data="confirm_order_no")
             ]
         ]
     )
     
     await message.answer(
-        f"📍 <b>Location Received</b>\n\n"
+        f"📍 <b>Joylashuv qabul qilindi</b>\n\n"
         f"Latitude: {latitude}\n"
         f"Longitude: {longitude}\n\n"
-        f"❓ Do you confirm your order?",
+        f"❓ Buyurtmangizni tasdiqlaysizmi?",
         reply_markup=keyboard
     )
     await state.clear()
@@ -239,28 +239,28 @@ async def order_pickup_show_branches(callback: CallbackQuery):
     
     if not branches:
         await callback.message.edit_text(
-            "🏢 <b>No Branches Available</b>\n\n"
-            "Sorry, there are currently no branches available for pickup.\n"
-            "Please contact support."
+            "🏢 <b>Filiallar mavjud emas</b>\n\n"
+            "Afsuski, hozirda olish uchun filiallar mavjud emas.\n"
+            "Iltimos, qo'llab-quvvatlash xizmatiga murojaat qiling."
         )
         await callback.answer()
         return
     
     await callback.message.edit_text(
-        "🏢 <b>Select a Branch for Pickup</b>\n\n"
-        "Choose a branch to pick up your order:"
+        "🏢 <b>Olish uchun filialni tanlang</b>\n\n"
+        "Buyurtmangizni olish uchun filialni tanlang:"
     )
-    
+    no_desc = "Tavsif yo'q"
     for branch in branches:
         text = (
             f"🏢 <b>{branch.name}</b>\n\n"
-            f"📝 {branch.description or 'No description'}\n"
-            f"📍 Location: {branch.location}"
+            f"📝 {branch.description or no_desc}\n"
+            f"📍 Joylashuv: {branch.location}"
         )
         
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(text="📦 Order from this branch", callback_data=f"pickup_branch_{branch.id}")]
+                [InlineKeyboardButton(text="📦 Buyurtma berish", callback_data=f"pickup_branch_{branch.id}")]
             ]
         )
         
@@ -288,15 +288,15 @@ async def confirm_pickup_branch(callback: CallbackQuery, state: FSMContext):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [
-                InlineKeyboardButton(text="✅ Yes", callback_data="confirm_order_yes_pickup"),
-                InlineKeyboardButton(text="❌ No", callback_data="confirm_order_no")
+                InlineKeyboardButton(text="✅ Ha", callback_data="confirm_order_yes_pickup"),
+                InlineKeyboardButton(text="❌ Yo'q", callback_data="confirm_order_no")
             ]
         ]
     )
     
     await callback.message.answer(
-        "❓ <b>Confirm Order</b>\n\n"
-        "Do you confirm your order?",
+        "❓ <b>Buyurtmani tasdiqlash</b>\n\n"
+        "Buyurtmangizni tasdiqlaysizmi?",
         reply_markup=keyboard
     )
     await callback.answer()
@@ -319,13 +319,13 @@ async def confirm_order_no(callback: CallbackQuery):
             product = item.product
             item_total = float(product.price) * item.quantity
             total += item_total
-            items_text += f"• {product.name}\n  💰 ${product.price} x {item.quantity} = ${item_total:.2f}\n\n"
+            items_text += f"• {product.name}\n  💰 {product.price} so'm x {item.quantity} = {item_total:.2f} so'm\n\n"
         
         text = (
-            f"🛒 <b>My Basket</b>\n\n"
+            f"🛒 <b>Mening savatim</b>\n\n"
             f"{items_text}"
             f"━━━━━━━━━━━━━━━\n"
-            f"💵 <b>Total: ${total:.2f}</b>"
+            f"💵 <b>Jami: {total:.2f} so'm</b>"
         )
         
         keyboard = []
@@ -336,7 +336,7 @@ async def confirm_order_no(callback: CallbackQuery):
                 InlineKeyboardButton(text="➕", callback_data=f"basket_inc_{item.product_id}_{item.quantity}")
             ])
         
-        keyboard.append([InlineKeyboardButton(text="✅ Confirm Order", callback_data="confirm_order_prompt")])
+        keyboard.append([InlineKeyboardButton(text="✅ Buyurtmani tasdiqlash", callback_data="confirm_order_prompt")])
         
         await callback.message.edit_text(text, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard))
     
@@ -363,7 +363,7 @@ async def confirm_order_yes_delivery(callback: CallbackQuery, state: FSMContext)
         basket_items = await get_basket_items(session, user.id)
         
         if not basket_items:
-            await callback.answer("Your basket is empty!", show_alert=True)
+            await callback.answer("Savatingiz bo'sh!", show_alert=True)
             return
         
         # Calculate total
@@ -374,7 +374,7 @@ async def confirm_order_yes_delivery(callback: CallbackQuery, state: FSMContext)
             product = item.product
             item_total = float(product.price) * item.quantity
             total += item_total
-            items_text += f"• {product.name}\n  💰 ${product.price} x {item.quantity} = ${item_total:.2f}\n\n"
+            items_text += f"• {product.name}\n  💰 {product.price} so'm x {item.quantity} = {item_total:.2f} so'm\n\n"
         
         # Create order with delivery details
         order = await create_order(
@@ -399,23 +399,23 @@ async def confirm_order_yes_delivery(callback: CallbackQuery, state: FSMContext)
         
         # Send to group with delivery location
         group_text = (
-            f"🆕 <b>New Order #{order.id}</b>\n\n"
-            f"👤 Customer: {user.full_name or user.first_name}\n"
-            f"📱 Phone: {user.phone_number or 'Not provided'}\n"
-            f"🆔 User ID: {user.tg_id}\n"
-            f"🚚 Delivery Type: <b>Delivery</b>\n\n"
-            f"📦 <b>Order Items:</b>\n"
+            f"🆕 <b>Yangi Buyurtma #{order.id}</b>\n\n"
+            f"👤 Mijoz: {user.full_name or user.first_name}\n"
+            f"📱 Telefon: {user.phone_number or 'Berilmagan'}\n"
+            f"🆔 Foydalanuvchi ID: {user.tg_id}\n"
+            f"🚚 Yetkazib berish turi: <b>Yetkazib berish</b>\n\n"
+            f"📦 <b>Buyurtma mahsulotlari:</b>\n"
             f"{items_text}"
             f"━━━━━━━━━━━━━━━\n"
-            f"💵 <b>Total: ${total:.2f}</b>\n"
-            f"📊 Status: {order.status}"
+            f"💵 <b>Jami: {total:.2f} so'm</b>\n"
+            f"📊 Holati: {order.status}"
         )
         
         group_keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
                 [
-                    InlineKeyboardButton(text="❌ Cancel", callback_data=f"order_status_{order.id}_cancelled"),
-                    InlineKeyboardButton(text="✅ Delivered", callback_data=f"order_status_{order.id}_delivered")
+                    InlineKeyboardButton(text="❌ Bekor qilish", callback_data=f"order_status_{order.id}_cancelled"),
+                    InlineKeyboardButton(text="✅ Yetkazildi", callback_data=f"order_status_{order.id}_delivered")
                 ]
             ]
         )
@@ -447,11 +447,11 @@ async def confirm_order_yes_delivery(callback: CallbackQuery, state: FSMContext)
         await clear_basket(session, user.id)
     
     await callback.message.edit_text(
-        f"✅ <b>Order Confirmed!</b>\n\n"
-        f"Your order #{order.id} has been placed successfully.\n"
-        f"Total: ${total:.2f}\n"
-        f"Delivery Type: Delivery\n\n"
-        f"We will deliver to your location soon!"
+        f"✅ <b>Buyurtma tasdiqlandi!</b>\n\n"
+        f"Sizning buyurtmangiz #{order.id} muvaffaqiyatli joylashtirildi.\n"
+        f"Jami: {total:.2f} so'm\n"
+        f"Yetkazib berish turi: Yetkazib berish\n\n"
+        f"Tez orada joylashuvingizga yetkazib beramiz!"
     )
     await state.clear()
     await callback.answer()
@@ -481,7 +481,7 @@ async def confirm_order_yes_pickup(callback: CallbackQuery, state: FSMContext):
         branch = await get_branch_by_id(session, branch_id)
         
         if not basket_items:
-            await callback.answer("Your basket is empty!", show_alert=True)
+            await callback.answer("Savatingiz bo'sh!", show_alert=True)
             return
         
         # Calculate total
@@ -492,7 +492,7 @@ async def confirm_order_yes_pickup(callback: CallbackQuery, state: FSMContext):
             product = item.product
             item_total = float(product.price) * item.quantity
             total += item_total
-            items_text += f"• {product.name}\n  💰 ${product.price} x {item.quantity} = ${item_total:.2f}\n\n"
+            items_text += f"• {product.name}\n  💰 {product.price} so'm x {item.quantity} = {item_total:.2f} so'm\n\n"
         
         # Create order with pickup details
         order = await create_order(
@@ -516,24 +516,24 @@ async def confirm_order_yes_pickup(callback: CallbackQuery, state: FSMContext):
         
         # Send to group with branch info
         group_text = (
-            f"🆕 <b>New Order #{order.id}</b>\n\n"
-            f"👤 Customer: {user.full_name or user.first_name}\n"
-            f"📱 Phone: {user.phone_number or 'Not provided'}\n"
-            f"🆔 User ID: {user.tg_id}\n"
-            f"🏢 Pickup Branch: <b>{branch.name}</b>\n"
-            f"📍 Branch Location: {branch.location}\n\n"
-            f"📦 <b>Order Items:</b>\n"
+            f"🆕 <b>Yangi Buyurtma #{order.id}</b>\n\n"
+            f"👤 Mijoz: {user.full_name or user.first_name}\n"
+            f"📱 Telefon: {user.phone_number or 'Berilmagan'}\n"
+            f"🆔 Foydalanuvchi ID: {user.tg_id}\n"
+            f"🏢 Olib ketish filiali: <b>{branch.name}</b>\n"
+            f"📍 Filial manzili: {branch.location}\n\n"
+            f"📦 <b>Buyurtma mahsulotlari:</b>\n"
             f"{items_text}"
             f"━━━━━━━━━━━━━━━\n"
-            f"💵 <b>Total: ${total:.2f}</b>\n"
-            f"📊 Status: {order.status}"
+            f"💵 <b>Jami: {total:.2f} so'm</b>\n"
+            f"📊 Holati: {order.status}"
         )
         
         group_keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
                 [
-                    InlineKeyboardButton(text="❌ Cancel", callback_data=f"order_status_{order.id}_cancelled"),
-                    InlineKeyboardButton(text="✅ Delivered", callback_data=f"order_status_{order.id}_delivered")
+                    InlineKeyboardButton(text="❌ Bekor qilish", callback_data=f"order_status_{order.id}_cancelled"),
+                    InlineKeyboardButton(text="✅ Yetkazildi", callback_data=f"order_status_{order.id}_delivered")
                 ]
             ]
         )
@@ -556,12 +556,12 @@ async def confirm_order_yes_pickup(callback: CallbackQuery, state: FSMContext):
         await clear_basket(session, user.id)
     
     await callback.message.edit_text(
-        f"✅ <b>Order Confirmed!</b>\n\n"
-        f"Information about your product has been sent to the branch.\n"
-        f"They will contact you shortly!\n\n"
-        f"📦 Order #{order.id}\n"
-        f"💵 Total: ${total:.2f}\n"
-        f"🏢 Branch: {branch.name}"
+        f"✅ <b>Buyurtma tasdiqlandi!</b>\n\n"
+        f"Mahsulotingiz haqida ma'lumot filialga yuborildi.\n"
+        f"Ular tez orada siz bilan bog'lanishadi!\n\n"
+        f"📦 Buyurtma #{order.id}\n"
+        f"💵 Jami: {total:.2f} so'm\n"
+        f"🏢 Filial: {branch.name}"
     )
     await state.clear()
     await callback.answer()
@@ -584,7 +584,7 @@ async def update_order_status_handler(callback: CallbackQuery):
         order = await update_order_status(session, order_id, new_status)
         
         if not order:
-            await callback.answer("Order not found!", show_alert=True)
+            await callback.answer("Buyurtma topilmadi!", show_alert=True)
             return
         
         # Get order details
@@ -594,26 +594,26 @@ async def update_order_status_handler(callback: CallbackQuery):
         items_text = ""
         for item in order_items:
             item_total = float(item.product_price) * item.quantity
-            items_text += f"• {item.product_name}\n  💰 ${item.product_price} x {item.quantity} = ${item_total:.2f}\n\n"
+            items_text += f"• {item.product_name}\n  💰 {item.product_price} so'm x {item.quantity} = {item_total:.2f} so'm\n\n"
         
         # Update group message with HTML parse mode
         group_text = (
-            f"🆕 <b>New Order #{order.id}</b>\n\n"
-            f"👤 Customer: {user.full_name or user.first_name}\n"
-            f"📱 Phone: {user.phone_number or 'Not provided'}\n"
-            f"🆔 User ID: {user.tg_id}\n\n"
-            f"📦 <b>Order Items:</b>\n"
+            f"🆕 <b>Yangi Buyurtma #{order.id}</b>\n\n"
+            f"👤 Mijoz: {user.full_name or user.first_name}\n"
+            f"📱 Telefon: {user.phone_number or 'Berilmagan'}\n"
+            f"🆔 Foydalanuvchi ID: {user.tg_id}\n\n"
+            f"📦 <b>Buyurtma mahsulotlari:</b>\n"
             f"{items_text}"
             f"━━━━━━━━━━━━━━━\n"
-            f"💵 <b>Total: ${order.total_price}</b>\n"
-            f"📊 Status: <b>{new_status.upper()}</b>"
+            f"💵 <b>Jami: {order.total_price} so'm</b>\n"
+            f"📊 Holati: <b>{new_status.upper()}</b>"
         )
         
         group_keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
                 [
-                    InlineKeyboardButton(text="❌ Cancel", callback_data=f"order_status_{order.id}_cancelled"),
-                    InlineKeyboardButton(text="✅ Delivered", callback_data=f"order_status_{order.id}_delivered")
+                    InlineKeyboardButton(text="❌ Bekor qilish", callback_data=f"order_status_{order.id}_cancelled"),
+                    InlineKeyboardButton(text="✅ Yetkazildi", callback_data=f"order_status_{order.id}_delivered")
                 ]
             ]
         )
@@ -628,12 +628,12 @@ async def update_order_status_handler(callback: CallbackQuery):
             status_emoji = "❌" if new_status == "cancelled" else "✅"
             await bot.send_message(
                 chat_id=user.tg_id,
-                text=f"{status_emoji} <b>Order #{order.id} Status Update</b>\n\n"
-                     f"Your order status has been updated to: <b>{new_status.upper()}</b>",
+                text=f"{status_emoji} <b>Buyurtma #{order.id} holati yangilandi</b>\n\n"
+                     f"Buyurtma holati yangilandi: <b>{new_status.upper()}</b>",
                 parse_mode=ParseMode.HTML
             )
         except Exception as e:
             print(f"Error notifying user: {e}")
     
-    await callback.answer(f"Order status updated to {new_status}!")
+    await callback.answer(f"Buyurtma holati yangilandi: {new_status}!")
     await bot.session.close()

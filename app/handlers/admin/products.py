@@ -44,15 +44,15 @@ async def view_all_products(callback: CallbackQuery):
     
     if not products:
         await callback.message.edit_text(
-            "📦 <b>Products List</b>\n\n"
-            "No products found. Add your first product!",
+            "📦 <b>Mahsulotlar ro'yxati</b>\n\n"
+            "Mahsulotlar topilmadi. Birinchi mahsulotingizni qo'shing!",
             reply_markup=get_admin_panel_keyboard()
         )
     else:
         await callback.message.edit_text(
-            f"📦 <b>Products List</b>\n\n"
-            f"Total products: {len(products)}\n"
-            "Select a product to view details:",
+            f"📦 <b>Mahsulotlar ro'yxati</b>\n\n"
+            f"Jami mahsulotlar: {len(products)}\n"
+            "Batafsil ma'lumot olish uchun mahsulotni tanlang:",
             reply_markup=get_product_list_keyboard(products)
         )
     await callback.answer()
@@ -66,17 +66,21 @@ async def view_product_detail(callback: CallbackQuery):
         product = await get_product_by_id(session, product_id)
     
     if not product:
-        await callback.answer("Product not found!", show_alert=True)
+        await callback.answer("Mahsulot topilmadi!", show_alert=True)
         return
+    
+    no_desc = 'Tavsif yo\'q'
+    no_img = 'Rasm yo\'q'
+    has_img = 'Ha'
     
     text = (
         f"📦 <b>{product.name}</b>\n\n"
-        f"💰 Price: ${product.price}\n"
-        f"🏷 Type: {product.type}\n"
-        f"📝 Description: {product.description or 'No description'}\n"
-        f"🖼 Image: {'Yes' if product.product_image else 'No image'}\n\n"
-        f"📅 Created: {product.created_at.strftime('%Y-%m-%d %H:%M')}\n"
-        f"🔄 Updated: {product.updated_at.strftime('%Y-%m-%d %H:%M')}"
+        f"💰 Narxi: {product.price} so'm\n"
+        f"🏷 Turi: {product.type}\n"
+        f"📝 Tavsif: {product.description or no_desc}\n"
+        f"🖼 Rasm: {has_img if product.product_image else no_img}\n\n"
+        f"📅 Yaratilgan: {product.created_at.strftime('%Y-%m-%d %H:%M')}\n"
+        f"🔄 Yangilangan: {product.updated_at.strftime('%Y-%m-%d %H:%M')}"
     )
     
     if product.product_image:
@@ -98,8 +102,8 @@ async def view_product_detail(callback: CallbackQuery):
 @router.callback_query(F.data == "admin_add_product")
 async def start_add_product(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_text(
-        "➕ <b>Add New Product</b>\n\n"
-        "Please enter the product name:",
+        "➕ <b>Yangi mahsulot qo'shish</b>\n\n"
+        "Iltimos, mahsulot nomini kiriting:",
         reply_markup=get_cancel_keyboard()
     )
     await state.set_state(ProductStates.waiting_for_name)
@@ -110,8 +114,8 @@ async def start_add_product(callback: CallbackQuery, state: FSMContext):
 async def process_product_name(message: Message, state: FSMContext):
     await state.update_data(name=message.text)
     await message.answer(
-        f"✅ Product name: <b>{message.text}</b>\n\n"
-        "Now enter the product price (numbers only, e.g., 10.99):"
+        f"✅ Mahsulot nomi: <b>{message.text}</b>\n\n"
+        "Endi mahsulot narxini kiriting (faqat raqamlar, masalan, 10.99):"
     )
     await state.set_state(ProductStates.waiting_for_price)
 
@@ -134,8 +138,8 @@ async def process_product_price(message: Message, state: FSMContext):
         )
         
         await message.answer(
-            f"✅ Price: <b>${price}</b>\n\n"
-            "Now select the product type:",
+            f"✅ Narxi: <b>{price} so'm</b>\n\n"
+            "Endi mahsulot turini tanlang:",
             reply_markup=keyboard
         )
         await state.set_state(ProductStates.waiting_for_type)
@@ -151,8 +155,8 @@ async def process_product_type(callback: CallbackQuery, state: FSMContext):
     await state.update_data(type=product_type)
     
     await callback.message.edit_text(
-        f"✅ Type: <b>{product_type.replace('_', ' ').title()}</b>\n\n"
-        "Now enter the product description (or send /skip to skip):"
+        f"✅ Turi: <b>{product_type.replace('_', ' ').title()}</b>\n\n"
+        "Endi mahsulot tavsifini kiriting (yoki o'tkazib yuborish uchun /skip yuboring):"
     )
     await state.set_state(ProductStates.waiting_for_description)
     await callback.answer()
@@ -163,10 +167,7 @@ async def process_product_description(message: Message, state: FSMContext):
     description = None if message.text == "/skip" else message.text
     await state.update_data(description=description)
     
-    await message.answer(
-        f"✅ Description: <b>{description or 'Skipped'}</b>\n\n"
-        "Finally, send the product image (or send /skip to skip):"
-    )
+    await message.answer(f"✅ Tavsif: <b>{description or 'Otkazib yuborildi'}</b>\n\nNihoyat, mahsulot rasmini yuboring (yoki o'tkazib yuborish uchun /skip yuboring):")
     await state.set_state(ProductStates.waiting_for_image)
 
 
@@ -187,13 +188,13 @@ async def process_product_image(message: Message, state: FSMContext):
             description=data.get('description'),
             product_image=file_id
         )
-    
+    no_desc = "Tavsif yo'q"
     text = (
-        f"✅ <b>Product Added Successfully!</b>\n\n"
-        f"📦 Name: {product.name}\n"
-        f"💰 Price: ${product.price}\n"
-        f"🏷 Type: {product.type}\n"
-        f"📝 Description: {product.description or 'No description'}"
+        f"✅ <b>Mahsulot muvaffaqiyatli qo'shildi!</b>\n\n"
+        f"📦 Nomi: {product.name}\n"
+        f"💰 Narxi: {product.price} so'm\n"
+        f"🏷 Turi: {product.type}\n"
+        f"📝 Tavsif: {product.description or no_desc}"
     )
     
     await message.answer_photo(
@@ -217,13 +218,13 @@ async def skip_product_image(message: Message, state: FSMContext):
             description=data.get('description'),
             product_image=None
         )
-    
+    no_desc = "Tavsif yo'q"
     await message.answer(
-        f"✅ <b>Product Added Successfully!</b>\n\n"
-        f"📦 Name: {product.name}\n"
-        f"💰 Price: ${product.price}\n"
-        f"🏷 Type: {product.type}\n"
-        f"📝 Description: {product.description or 'No description'}",
+        f"✅ <b>Mahsulot muvaffaqiyatli qo'shildi!</b>\n\n"
+        f"📦 Nomi: {product.name}\n"
+        f"💰 Narxi: {product.price} so'm\n"
+        f"🏷 Turi: {product.type}\n"
+        f"📝 Tavsif: {product.description or no_desc}",
         reply_markup=get_admin_panel_keyboard()
     )
     await state.clear()
@@ -237,14 +238,14 @@ async def start_edit_product(callback: CallbackQuery):
     
     if not products:
         await callback.message.edit_text(
-            "📦 No products available to edit.\n"
-            "Add some products first!",
+            "📦 Tahrirlash uchun mahsulotlar mavjud emas.\n"
+            "Avval mahsulotlar qo'shing!",
             reply_markup=get_admin_panel_keyboard()
         )
     else:
         await callback.message.edit_text(
-            "✏️ <b>Edit Product</b>\n\n"
-            "Select a product to edit:",
+            "✏️ <b>Mahsulotni tahrirlash</b>\n\n"
+            "Tahrirlash uchun mahsulotni tanlang:",
             reply_markup=get_product_edit_keyboard(products)
         )
     await callback.answer()
@@ -258,29 +259,33 @@ async def edit_product_menu(callback: CallbackQuery, state: FSMContext):
         product = await get_product_by_id(session, product_id)
     
     if not product:
-        await callback.answer("Product not found!", show_alert=True)
+        await callback.answer("Mahsulot topilmadi!", show_alert=True)
         return
     
     await state.update_data(product_id=product_id)
     
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="📝 Edit Name", callback_data=f"edit_name_{product_id}")],
-            [InlineKeyboardButton(text="💰 Edit Price", callback_data=f"edit_price_{product_id}")],
-            [InlineKeyboardButton(text="🏷 Edit Type", callback_data=f"edit_type_{product_id}")],
-            [InlineKeyboardButton(text="📄 Edit Description", callback_data=f"edit_desc_{product_id}")],
-            [InlineKeyboardButton(text="🖼 Edit Image", callback_data=f"edit_image_{product_id}")],
-            [InlineKeyboardButton(text="🔙 Back", callback_data="admin_edit_product")]
+            [InlineKeyboardButton(text="📝 Nomini tahrirlash", callback_data=f"edit_name_{product_id}")],
+            [InlineKeyboardButton(text="💰 Narxini tahrirlash", callback_data=f"edit_price_{product_id}")],
+            [InlineKeyboardButton(text="🏷 Turini tahrirlash", callback_data=f"edit_type_{product_id}")],
+            [InlineKeyboardButton(text="📄 Tavsifni tahrirlash", callback_data=f"edit_desc_{product_id}")],
+            [InlineKeyboardButton(text="🖼 Rasmni tahrirlash", callback_data=f"edit_image_{product_id}")],
+            [InlineKeyboardButton(text="🔙 Ortga", callback_data="admin_edit_product")]
         ]
     )
     
+    no_desc = "Tavsif yo'q"
+    no_img = "Rasm yo'q"
+    has_img = "Ha"
+    
     await callback.message.edit_text(
-        f"✏️ <b>Editing: {product.name}</b>\n\n"
-        f"Current Price: ${product.price}\n"
-        f"Current Type: {product.type}\n"
-        f"Current Description: {product.description or 'No description'}\n"
-        f"Current Image: {'Yes' if product.product_image else 'No image'}\n\n"
-        "What would you like to edit?",
+        f"✏️ <b>Tahrirlanmoqda: {product.name}</b>\n\n"
+        f"Joriy narx: {product.price} so'm\n"
+        f"Joriy tur: {product.type}\n"
+        f"Joriy tavsif: {product.description or no_desc}\n"
+        f"Joriy rasm: {has_img if product.product_image else no_img}\n\n"
+        "Nimani tahrirlashni xohlaysiz?",
         reply_markup=keyboard
     )
     await callback.answer()
@@ -291,8 +296,8 @@ async def edit_name_start(callback: CallbackQuery, state: FSMContext):
     product_id = int(callback.data.split("_")[2])
     await state.update_data(product_id=product_id)
     await callback.message.edit_text(
-        "✏️ <b>Edit Product Name</b>\n\n"
-        "Please enter the new product name:",
+        "✏️ <b>Mahsulot nomini tahrirlash</b>\n\n"
+        "Iltimos, yangi mahsulot nomini kiriting:",
         reply_markup=get_cancel_keyboard()
     )
     await state.set_state(ProductStates.editing_name)
@@ -308,8 +313,8 @@ async def process_edit_name(message: Message, state: FSMContext):
         product = await update_product(session, product_id, name=message.text)
     
     await message.answer(
-        f"✅ <b>Product name updated!</b>\n\n"
-        f"New name: {product.name}",
+        f"✅ <b>Mahsulot nomi yangilandi!</b>\n\n"
+        f"Yangi nom: {product.name}",
         reply_markup=get_admin_panel_keyboard()
     )
     await state.clear()
@@ -320,8 +325,8 @@ async def edit_price_start(callback: CallbackQuery, state: FSMContext):
     product_id = int(callback.data.split("_")[2])
     await state.update_data(product_id=product_id)
     await callback.message.edit_text(
-        "✏️ <b>Edit Product Price</b>\n\n"
-        "Please enter the new price (e.g., 10.99):",
+        "✏️ <b>Mahsulot narxini tahrirlash</b>\n\n"
+        "Iltimos, yangi narxni kiriting (masalan, 10.99):",
         reply_markup=get_cancel_keyboard()
     )
     await state.set_state(ProductStates.editing_price)
@@ -342,8 +347,8 @@ async def process_edit_price(message: Message, state: FSMContext):
             product = await update_product(session, product_id, price=price)
         
         await message.answer(
-            f"✅ <b>Product price updated!</b>\n\n"
-            f"New price: ${product.price}",
+            f"✅ <b>Mahsulot narxi yangilandi!</b>\n\n"
+            f"Yangi narx: {product.price} so'm",
             reply_markup=get_admin_panel_keyboard()
         )
         await state.clear()
@@ -358,8 +363,8 @@ async def edit_description_start(callback: CallbackQuery, state: FSMContext):
     product_id = int(callback.data.split("_")[2])
     await state.update_data(product_id=product_id)
     await callback.message.edit_text(
-        "✏️ <b>Edit Product Description</b>\n\n"
-        "Please enter the new description:",
+        "✏️ <b>Mahsulot tavsifini tahrirlash</b>\n\n"
+        "Iltimos, yangi tavsifni kiriting:",
         reply_markup=get_cancel_keyboard()
     )
     await state.set_state(ProductStates.editing_description)
@@ -373,15 +378,15 @@ async def edit_type_start(callback: CallbackQuery, state: FSMContext):
     
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="🔻 Weight Loss", callback_data=f"edittype_weight_loss_{product_id}")],
-            [InlineKeyboardButton(text="🔺 Weight Gain", callback_data=f"edittype_weight_gain_{product_id}")],
-            [InlineKeyboardButton(text="❌ Cancel", callback_data="admin_panel")]
+            [InlineKeyboardButton(text="🔻 Vazn yo'qotish", callback_data=f"edittype_weight_loss_{product_id}")],
+            [InlineKeyboardButton(text="🔺 Vazn orttirish", callback_data=f"edittype_weight_gain_{product_id}")],
+            [InlineKeyboardButton(text="❌ Bekor qilish", callback_data="admin_panel")]
         ]
     )
     
     await callback.message.edit_text(
-        "✏️ <b>Edit Product Type</b>\n\n"
-        "Please select the new product type:",
+        "✏️ <b>Mahsulot turini tahrirlash</b>\n\n"
+        "Iltimos, yangi mahsulot turini tanlang:",
         reply_markup=keyboard
     )
     await callback.answer()
@@ -397,8 +402,8 @@ async def process_edit_type(callback: CallbackQuery, state: FSMContext):
         product = await update_product(session, product_id, product_type=product_type)
     
     await callback.message.edit_text(
-        f"✅ <b>Product type updated!</b>\n\n"
-        f"New type: {product.type}",
+        f"✅ <b>Mahsulot turi yangilandi!</b>\n\n"
+        f"Yangi tur: {product.type}",
         reply_markup=get_admin_panel_keyboard()
     )
     await state.clear()
@@ -414,8 +419,8 @@ async def process_edit_description(message: Message, state: FSMContext):
         product = await update_product(session, product_id, description=message.text)
     
     await message.answer(
-        f"✅ <b>Product description updated!</b>\n\n"
-        f"New description: {product.description}",
+        f"✅ <b>Mahsulot tavsifi yangilandi!</b>\n\n"
+        f"Yangi tavsif: {product.description}",
         reply_markup=get_admin_panel_keyboard()
     )
     await state.clear()
@@ -426,8 +431,8 @@ async def edit_image_start(callback: CallbackQuery, state: FSMContext):
     product_id = int(callback.data.split("_")[2])
     await state.update_data(product_id=product_id)
     await callback.message.edit_text(
-        "✏️ <b>Edit Product Image</b>\n\n"
-        "Please send the new product image (or send /skip to remove image):",
+        "✏️ <b>Mahsulot rasmini tahrirlash</b>\n\n"
+        "Iltimos, yangi mahsulot rasmini yuboring (yoki rasmni o'chirish uchun /skip yuboring):",
         reply_markup=get_cancel_keyboard()
     )
     await state.set_state(ProductStates.editing_image)
@@ -447,8 +452,8 @@ async def process_edit_image(message: Message, state: FSMContext):
     
     await message.answer_photo(
         photo=file_id,
-        caption=f"✅ <b>Product image updated!</b>\n\n"
-                f"Product: {product.name}",
+        caption=f"✅ <b>Mahsulot rasmi yangilandi!</b>\n\n"
+                f"Mahsulot: {product.name}",
         reply_markup=get_admin_panel_keyboard()
     )
     await state.clear()
@@ -463,8 +468,8 @@ async def remove_product_image(message: Message, state: FSMContext):
         product = await update_product(session, product_id, product_image=None)
     
     await message.answer(
-        f"✅ <b>Product image removed!</b>\n\n"
-        f"Product: {product.name}",
+        f"✅ <b>Mahsulot rasmi o'chirildi!</b>\n\n"
+        f"Mahsulot: {product.name}",
         reply_markup=get_admin_panel_keyboard()
     )
     await state.clear()
@@ -478,13 +483,13 @@ async def start_delete_product(callback: CallbackQuery):
     
     if not products:
         await callback.message.edit_text(
-            "📦 No products available to delete.",
+            "📦 O'chirish uchun mahsulotlar mavjud emas.",
             reply_markup=get_admin_panel_keyboard()
         )
     else:
         await callback.message.edit_text(
-            "🗑 <b>Delete Product</b>\n\n"
-            "⚠️ Select a product to delete:",
+            "🗑 <b>Mahsulotni o'chirish</b>\n\n"
+            "⚠️ O'chirish uchun mahsulotni tanlang:",
             reply_markup=get_product_delete_keyboard(products)
         )
     await callback.answer()
@@ -498,14 +503,14 @@ async def confirm_delete_product(callback: CallbackQuery):
         product = await get_product_by_id(session, product_id)
     
     if not product:
-        await callback.answer("Product not found!", show_alert=True)
+        await callback.answer("Mahsulot topilmadi!", show_alert=True)
         return
     
     await callback.message.edit_text(
-        f"⚠️ <b>Confirm Deletion</b>\n\n"
-        f"Are you sure you want to delete this product?\n\n"
-        f"📦 Name: {product.name}\n"
-        f"💰 Price: ${product.price}",
+        f"⚠️ <b>O'chirishni tasdiqlash</b>\n\n"
+        f"Ushbu mahsulotni o'chirishni xohlaysizmi?\n\n"
+        f"📦 Nomi: {product.name}\n"
+        f"💰 Narxi: {product.price} so'm",
         reply_markup=get_confirm_delete_keyboard(product_id)
     )
     await callback.answer()
@@ -520,12 +525,12 @@ async def process_delete_product(callback: CallbackQuery):
     
     if success:
         await callback.message.edit_text(
-            "✅ <b>Product deleted successfully!</b>",
+            "✅ <b>Mahsulot muvaffaqiyatli o'chirildi!</b>",
             reply_markup=get_admin_panel_keyboard()
         )
     else:
         await callback.message.edit_text(
-            "❌ <b>Failed to delete product.</b>",
+            "❌ <b>Mahsulotni o'chirishda xatolik yuz berdi.</b>",
             reply_markup=get_admin_panel_keyboard()
         )
     await callback.answer()

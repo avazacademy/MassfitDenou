@@ -15,9 +15,9 @@ async def cmd_start(message: Message):
     # Check if user is admin
     if str(message.from_user.id) == str(ADMIN_ID):
         await message.answer(
-            "🔐 <b>Welcome to the Admin Panel</b>\n\n"
-            "Here you can manage products and view statistics.\n"
-            "Choose an option below:",
+            "🔐 <b>Admin Panelga xush kelibsiz</b>\n\n"
+            "Bu yerda siz mahsulotlarni boshqarishingiz va statistikani ko'rishingiz mumkin.\n"
+            "Quyidagi variantlardan birini tanlang:",
             reply_markup=get_admin_panel_keyboard()
         )
         return
@@ -38,13 +38,13 @@ async def cmd_start(message: Message):
             )
             
             await message.answer(
-                "Hello! Please enter your phone number. We need it so that we can contact you.",
+                "Assalomu alaykum! Iltimos, telefon raqamingizni yuboring. Bu siz bilan bog'lanishimiz uchun kerak.",
                 reply_markup=get_phone_keyboard()
             )
         elif not user.phone_number:
             # User exists but no phone number
             await message.answer(
-                "Hello! Please enter your phone number. We need it so that we can contact you.",
+                "Assalomu alaykum! Iltimos, telefon raqamingizni yuboring. Bu siz bilan bog'lanishimiz uchun kerak.",
                 reply_markup=get_phone_keyboard()
             )
         else:
@@ -64,16 +64,16 @@ async def process_contact(message: Message):
 
 async def show_main_menu(message: Message):
     bot_description = (
-        "🥗 <b>Welcome to MassFit - Your Personal Nutrition Assistant!</b>\n\n"
-        "We are here to help you achieve your health and fitness goals through proper nutrition. "
-        "Our bot provides personalized meal plans and expert recommendations tailored to your needs.\n\n"
-        "✨ <b>What we offer:</b>\n"
-        "• Custom meal plans for weight loss or muscle gain\n"
-        "• Balanced nutrition recommendations\n"
-        "• Healthy recipes and meal ideas\n"
-        "• Professional dietary guidance\n"
-        "• Track your orders and progress\n\n"
-        "Choose your goal below to get started! 👇"
+        "🥗 <b>MassFit - Shaxsiy ovqatlanish yordamchingizga xush kelibsiz!</b>\n\n"
+        "Biz sizga to'g'ri ovqatlanish orqali salomatlik va fitnes maqsadlaringizga erishishda yordam beramiz. "
+        "Bizning bot sizning ehtiyojlaringizga moslashtirilgan shaxsiy ovqatlanish rejalari va professional tavsiyalarni taqdim etadi.\n\n"
+        "✨ <b>Biz taklif qilamiz:</b>\n"
+        "• Vazn yo'qotish yoki mushak massasini oshirish uchun maxsus ovqatlanish rejalari\n"
+        "• Muvozanatli ovqatlanish bo'yicha tavsiyalar\n"
+        "• Sog'lom retseptlar va ovqatlanish g'oyalari\n"
+        "• Professional parhez bo'yicha yo'riqnoma\n"
+        "• Buyurtmalaringiz va taraqqiyotingizni kuzatish\n\n"
+        "Boshlash uchun maqsadingizni tanlang! 👇"
     )
     
     await message.answer(

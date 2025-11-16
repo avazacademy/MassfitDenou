@@ -15,7 +15,7 @@ async def add_to_basket_view(callback: CallbackQuery):
         product = await get_product_by_id(session, product_id)
     
     if not product:
-        await callback.answer("Product not found!", show_alert=True)
+        await callback.answer("Mahsulot topilmadi!", show_alert=True)
         return
     
     quantity = 1
@@ -23,10 +23,10 @@ async def add_to_basket_view(callback: CallbackQuery):
     
     text = (
         f"📦 <b>{product.name}</b>\n\n"
-        f"💰 Price per item: ${product.price}\n"
-        f"📊 Quantity: {quantity}\n"
-        f"💵 Total: ${total_price:.2f}\n\n"
-        "Adjust quantity and save to basket:"
+        f"💰 Bir dona narxi: {product.price} so'm\n"
+        f"📊 Miqdori: {quantity}\n"
+        f"💵 Jami: {total_price:.2f} so'm\n\n"
+        "Miqdorni sozlang va savatga saqlang:"
     )
     
     keyboard = InlineKeyboardMarkup(
@@ -36,8 +36,8 @@ async def add_to_basket_view(callback: CallbackQuery):
                 InlineKeyboardButton(text=f"{quantity}", callback_data="qty_display"),
                 InlineKeyboardButton(text="➕", callback_data=f"qty_inc_{product.id}_1")
             ],
-            [InlineKeyboardButton(text="💾 Save to Basket", callback_data=f"save_basket_{product.id}_1")],
-            [InlineKeyboardButton(text="🔙 Back to Products", callback_data=f"back_to_{product.type}")]
+            [InlineKeyboardButton(text="💾 Savatga saqlash", callback_data=f"save_basket_{product.id}_1")],
+            [InlineKeyboardButton(text="🔙 Mahsulotlarga qaytish", callback_data=f"back_to_{product.type}")]
         ]
     )
     
@@ -64,17 +64,17 @@ async def increase_quantity(callback: CallbackQuery):
         product = await get_product_by_id(session, product_id)
     
     if not product:
-        await callback.answer("Product not found!", show_alert=True)
+        await callback.answer("Mahsulot topilmadi!", show_alert=True)
         return
     
     total_price = float(product.price) * new_qty
     
     text = (
         f"📦 <b>{product.name}</b>\n\n"
-        f"💰 Price per item: ${product.price}\n"
-        f"📊 Quantity: {new_qty}\n"
-        f"💵 Total: ${total_price:.2f}\n\n"
-        "Adjust quantity and save to basket:"
+        f"💰 Bir dona narxi: {product.price} so'm\n"
+        f"📊 Miqdori: {new_qty}\n"
+        f"💵 Jami: {total_price:.2f} so'm\n\n"
+        "Miqdorni sozlang va savatga saqlang:"
     )
     
     keyboard = InlineKeyboardMarkup(
@@ -84,8 +84,8 @@ async def increase_quantity(callback: CallbackQuery):
                 InlineKeyboardButton(text=f"{new_qty}", callback_data="qty_display"),
                 InlineKeyboardButton(text="➕", callback_data=f"qty_inc_{product.id}_{new_qty}")
             ],
-            [InlineKeyboardButton(text="💾 Save to Basket", callback_data=f"save_basket_{product.id}_{new_qty}")],
-            [InlineKeyboardButton(text="🔙 Back to Products", callback_data=f"back_to_{product.type}")]
+            [InlineKeyboardButton(text="💾 Savatga saqlash", callback_data=f"save_basket_{product.id}_{new_qty}")],
+            [InlineKeyboardButton(text="🔙 Mahsulotlarga qaytish", callback_data=f"back_to_{product.type}")]
         ]
     )
     
@@ -111,22 +111,22 @@ async def decrease_quantity(callback: CallbackQuery):
         product = await get_product_by_id(session, product_id)
     
     if not product:
-        await callback.answer("Product not found!", show_alert=True)
+        await callback.answer("Mahsulot topilmadi!", show_alert=True)
         return
     
     if new_qty < 1:
         # Return to initial state
         text = (
             f"📦 <b>{product.name}</b>\n\n"
-            f"💰 Price: ${product.price}\n"
-            f"📝 Description: {product.description or 'No description provided'}\n\n"
-            "To order this product, add it to your basket!"
+            f"💰 Narxi: {product.price} so'm\n"
+            f"📝 Tavsif: {product.description or 'Tavsif berilmagan'}\n\n"
+            "Bu mahsulotni buyurtma qilish uchun savatga qo'shing!"
         )
         
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(text="🛒 Add to Basket", callback_data=f"add_basket_{product.id}")],
-                [InlineKeyboardButton(text="🔙 Back to Products", callback_data=f"back_to_{product.type}")]
+                [InlineKeyboardButton(text="🛒 Savatga qo'shish", callback_data=f"add_basket_{product.id}")],
+                [InlineKeyboardButton(text="🔙 Mahsulotlarga qaytish", callback_data=f"back_to_{product.type}")]
             ]
         )
     else:
@@ -134,10 +134,10 @@ async def decrease_quantity(callback: CallbackQuery):
         
         text = (
             f"📦 <b>{product.name}</b>\n\n"
-            f"💰 Price per item: ${product.price}\n"
-            f"📊 Quantity: {new_qty}\n"
-            f"💵 Total: ${total_price:.2f}\n\n"
-            "Adjust quantity and save to basket:"
+            f"💰 Bir dona narxi: {product.price} so'm\n"
+            f"📊 Miqdori: {new_qty}\n"
+            f"💵 Jami: {total_price:.2f} so'm\n\n"
+            "Miqdorni sozlang va savatga saqlang:"
         )
         
         keyboard = InlineKeyboardMarkup(
@@ -147,8 +147,8 @@ async def decrease_quantity(callback: CallbackQuery):
                     InlineKeyboardButton(text=f"{new_qty}", callback_data="qty_display"),
                     InlineKeyboardButton(text="➕", callback_data=f"qty_inc_{product.id}_{new_qty}")
                 ],
-                [InlineKeyboardButton(text="💾 Save to Basket", callback_data=f"save_basket_{product.id}_{new_qty}")],
-                [InlineKeyboardButton(text="🔙 Back to Products", callback_data=f"back_to_{product.type}")]
+                [InlineKeyboardButton(text="💾 Savatga saqlash", callback_data=f"save_basket_{product.id}_{new_qty}")],
+                [InlineKeyboardButton(text="🔙 Mahsulotlarga qaytish", callback_data=f"back_to_{product.type}")]
             ]
         )
     
@@ -177,25 +177,25 @@ async def save_to_basket(callback: CallbackQuery):
         user = await get_user_by_tg_id(session, callback.from_user.id)
         
         if not product or not user:
-            await callback.answer("Error saving to basket!", show_alert=True)
+            await callback.answer("Savatga saqlashda xatolik!", show_alert=True)
             return
         
         await add_to_basket(session, user.id, product_id, quantity)
     
-    await callback.answer("✅ Added to basket!", show_alert=True)
+    await callback.answer("✅ Savatga qo'shildi!", show_alert=True)
     
     # Return to product view
     text = (
         f"📦 <b>{product.name}</b>\n\n"
-        f"💰 Price: ${product.price}\n"
-        f"📝 Description: {product.description or 'No description provided'}\n\n"
-        "To order this product, add it to your basket!"
+        f"💰 Narxi: {product.price} so'm\n"
+        f"📝 Tavsif: {product.description or 'Tavsif berilmagan'}\n\n"
+        "Bu mahsulotni buyurtma qilish uchun savatga qo'shing!"
     )
     
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="🛒 Add to Basket", callback_data=f"add_basket_{product.id}")],
-            [InlineKeyboardButton(text="🔙 Back to Products", callback_data=f"back_to_{product.type}")]
+            [InlineKeyboardButton(text="🛒 Savatga qo'shish", callback_data=f"add_basket_{product.id}")],
+            [InlineKeyboardButton(text="🔙 Mahsulotlarga qaytish", callback_data=f"back_to_{product.type}")]
         ]
     )
     

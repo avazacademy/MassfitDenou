@@ -7,16 +7,16 @@ from app.database.product_requests import get_products_by_type, get_product_by_i
 router = Router()
 
 
-@router.message(F.text == "🔻 Lose Weight")
+@router.message(F.text == "🔻 Vazn yo'qotish")
 async def lose_weight_menu(message: Message):
     async with async_session_maker() as session:
         products = await get_products_by_type(session, "weight_loss")
     
     if not products:
         await message.answer(
-            "🔻 <b>Weight Loss Products</b>\n\n"
-            "This category of products helps your body lose excess weight.\n\n"
-            "Currently, there are no products available in this category."
+            "🔻 <b>Vazn yo'qotish mahsulotlari</b>\n\n"
+            "Bu toifadagi mahsulotlar tanangizning ortiqcha vaznini yo'qotishga yordam beradi.\n\n"
+            "Hozircha bu toifada mahsulotlar mavjud emas."
         )
         return
     
@@ -24,29 +24,29 @@ async def lose_weight_menu(message: Message):
     for product in products:
         keyboard.append([
             InlineKeyboardButton(
-                text=f"{product.name} - ${product.price}",
+                text=f"{product.name} - {product.price} so'm",
                 callback_data=f"user_product_{product.id}"
             )
         ])
     
     await message.answer(
-        "🔻 <b>Weight Loss Products</b>\n\n"
-        "This category of products helps your body lose excess weight.\n\n"
-        "Select a product to view details:",
+        "🔻 <b>Vazn yo'qotish mahsulotlari</b>\n\n"
+        "Bu toifadagi mahsulotlar tanangizning ortiqcha vaznini yo'qotishga yordam beradi.\n\n"
+        "Batafsil ma'lumot olish uchun mahsulotni tanlang:",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard)
     )
 
 
-@router.message(F.text == "🔺 Gain Weight")
+@router.message(F.text == "🔺 Vazn olish")
 async def gain_weight_menu(message: Message):
     async with async_session_maker() as session:
         products = await get_products_by_type(session, "weight_gain")
     
     if not products:
         await message.answer(
-            "🔺 <b>Weight Gain Products</b>\n\n"
-            "This category of products helps your body gain healthy weight and build muscle mass.\n\n"
-            "Currently, there are no products available in this category."
+            "🔺 <b>Vazn olish mahsulotlari</b>\n\n"
+            "Bu toifadagi mahsulotlar tanangizga sog'lom vazn va mushak massasini oshirishga yordam beradi.\n\n"
+            "Hozircha bu toifada mahsulotlar mavjud emas."
         )
         return
     
@@ -54,15 +54,15 @@ async def gain_weight_menu(message: Message):
     for product in products:
         keyboard.append([
             InlineKeyboardButton(
-                text=f"{product.name} - ${product.price}",
+                text=f"{product.name} - {product.price} so'm",
                 callback_data=f"user_product_{product.id}"
             )
         ])
     
     await message.answer(
-        "🔺 <b>Weight Gain Products</b>\n\n"
-        "This category of products helps your body gain healthy weight and build muscle mass.\n\n"
-        "Select a product to view details:",
+        "🔺 <b>Vazn olish mahsulotlari</b>\n\n"
+        "Bu toifadagi mahsulotlar tanangizga sog'lom vazn va mushak massasini oshirishga yordam beradi.\n\n"
+        "Batafsil ma'lumot olish uchun mahsulotni tanlang:",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard)
     )
 
@@ -75,20 +75,20 @@ async def view_user_product(callback: CallbackQuery):
         product = await get_product_by_id(session, product_id)
     
     if not product:
-        await callback.answer("Product not found!", show_alert=True)
+        await callback.answer("Mahsulot topilmadi!", show_alert=True)
         return
     
     text = (
         f"📦 <b>{product.name}</b>\n\n"
-        f"💰 Price: ${product.price}\n"
-        f"📝 Description: {product.description or 'No description provided'}\n\n"
-        "To order this product, add it to your basket!"
+        f"💰 Narxi: {product.price} so'm\n"
+        f"📝 Tavsif: {product.description or 'Tavsif berilmagan'}\n\n"
+        "Bu mahsulotni buyurtma qilish uchun savatga qo'shing!"
     )
     
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="🛒 Add to Basket", callback_data=f"add_basket_{product.id}")],
-            [InlineKeyboardButton(text="🔙 Back to Products", callback_data=f"back_to_{product.type}")]
+            [InlineKeyboardButton(text="🛒 Savatga qo'shish", callback_data=f"add_basket_{product.id}")],
+            [InlineKeyboardButton(text="🔙 Mahsulotlarga qaytish", callback_data=f"back_to_{product.type}")]
         ]
     )
     
@@ -116,20 +116,20 @@ async def back_to_category(callback: CallbackQuery):
     for product in products:
         keyboard.append([
             InlineKeyboardButton(
-                text=f"{product.name} - ${product.price}",
+                text=f"{product.name} - {product.price} so'm",
                 callback_data=f"user_product_{product.id}"
             )
         ])
     
     if product_type == "weight_loss":
-        title = "🔻 <b>Weight Loss Products</b>\n\n"
-        description = "This category of products helps your body lose excess weight.\n\n"
+        title = "🔻 <b>Vazn yo'qotish mahsulotlari</b>\n\n"
+        description = "Bu toifadagi mahsulotlar tanangizning ortiqcha vaznini yo'qotishga yordam beradi.\n\n"
     else:
-        title = "🔺 <b>Weight Gain Products</b>\n\n"
-        description = "This category of products helps your body gain healthy weight and build muscle mass.\n\n"
+        title = "🔺 <b>Vazn olish mahsulotlari</b>\n\n"
+        description = "Bu toifadagi mahsulotlar tanangizga sog'lom vazn va mushak massasini oshirishga yordam beradi.\n\n"
     
     await callback.message.edit_text(
-        title + description + "Select a product to view details:",
+        title + description + "Batafsil ma'lumot olish uchun mahsulotni tanlang:",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard)
     )
     await callback.answer()
