@@ -37,12 +37,19 @@ class BranchStates(StatesGroup):
 
 @router.callback_query(F.data == "admin_branches")
 async def branches_panel(callback: CallbackQuery):
-    await callback.message.edit_text(
+    text = (
         "🏢 <b>Filiallarni boshqarish</b>\n\n"
         "Bu yerda filiallaringizni boshqaring.\n"
-        "Quyidagi variantlardan birini tanlang:",
-        reply_markup=get_branches_panel_keyboard()
+        "Quyidagi variantlardan birini tanlang:"
     )
+    
+    # Check if current message has photo (no text to edit)
+    if callback.message.photo:
+        await callback.message.delete()
+        await callback.message.answer(text, reply_markup=get_branches_panel_keyboard())
+    else:
+        await callback.message.edit_text(text, reply_markup=get_branches_panel_keyboard())
+    
     await callback.answer()
 
 
@@ -52,18 +59,26 @@ async def view_all_branches(callback: CallbackQuery):
         branches = await get_all_branches(session)
     
     if not branches:
-        await callback.message.edit_text(
+        text = (
             "🏢 <b>Filiallar ro'yxati</b>\n\n"
-            "Filiallar topilmadi. Birinchi filialingizni qo'shing!",
-            reply_markup=get_branches_panel_keyboard()
+            "Filiallar topilmadi. Birinchi filialingizni qo'shing!"
         )
+        markup = get_branches_panel_keyboard()
     else:
-        await callback.message.edit_text(
+        text = (
             f"🏢 <b>Filiallar ro'yxati</b>\n\n"
             f"Jami filiallar: {len(branches)}\n"
-            "Batafsil ma'lumot olish uchun filialni tanlang:",
-            reply_markup=get_branch_list_keyboard(branches)
+            "Batafsil ma'lumot olish uchun filialni tanlang:"
         )
+        markup = get_branch_list_keyboard(branches)
+    
+    # Check if current message has photo (no text to edit)
+    if callback.message.photo:
+        await callback.message.delete()
+        await callback.message.answer(text, reply_markup=markup)
+    else:
+        await callback.message.edit_text(text, reply_markup=markup)
+    
     await callback.answer()
 
 
@@ -260,14 +275,21 @@ async def edit_branch_menu(callback: CallbackQuery, state: FSMContext):
     no_img = "Rasm yo'q"
     has_img = "Ha"
     
-    await callback.message.edit_text(
+    text = (
         f"✏️ <b>Tahrirlanmoqda: {branch.name}</b>\n\n"
         f"Joriy joylashuv: {branch.location}\n"
         f"Joriy tavsif: {branch.description or no_desc}\n"
         f"Joriy rasm: {has_img if branch.image else no_img}\n\n"
-        "Nimani tahrirlashni xohlaysiz?",
-        reply_markup=keyboard
+        "Nimani tahrirlashni xohlaysiz?"
     )
+    
+    # Check if current message has photo (no text to edit)
+    if callback.message.photo:
+        await callback.message.delete()
+        await callback.message.answer(text, reply_markup=keyboard)
+    else:
+        await callback.message.edit_text(text, reply_markup=keyboard)
+    
     await callback.answer()
 
 
@@ -443,13 +465,20 @@ async def confirm_delete_branch(callback: CallbackQuery):
         await callback.answer("Filial topilmadi!", show_alert=True)
         return
     
-    await callback.message.edit_text(
+    text = (
         f"⚠️ <b>O'chirishni tasdiqlang</b>\n\n"
         f"Ushbu filialni o'chirishni xohlaysizmi?\n\n"
         f"🏢 Nomi: {branch.name}\n"
-        f"📍 Joylashuv: {branch.location}",
-        reply_markup=get_confirm_delete_branch_keyboard(branch_id)
+        f"📍 Joylashuv: {branch.location}"
     )
+    
+    # Check if current message has photo (no text to edit)
+    if callback.message.photo:
+        await callback.message.delete()
+        await callback.message.answer(text, reply_markup=get_confirm_delete_branch_keyboard(branch_id))
+    else:
+        await callback.message.edit_text(text, reply_markup=get_confirm_delete_branch_keyboard(branch_id))
+    
     await callback.answer()
 
 

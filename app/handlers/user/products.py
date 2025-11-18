@@ -128,8 +128,18 @@ async def back_to_category(callback: CallbackQuery):
         title = "🔺 <b>Vazn olish mahsulotlari</b>\n\n"
         description = "Bu toifadagi mahsulotlar tanangizga sog'lom vazn va mushak massasini oshirishga yordam beradi.\n\n"
     
-    await callback.message.edit_text(
-        title + description + "Batafsil ma'lumot olish uchun mahsulotni tanlang:",
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard)
-    )
+    text = title + description + "Batafsil ma'lumot olish uchun mahsulotni tanlang:"
+    
+    # Check if current message has photo (no text to edit)
+    if callback.message.photo:
+        await callback.message.delete()
+        await callback.message.answer(
+            text,
+            reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard)
+        )
+    else:
+        await callback.message.edit_text(
+            text,
+            reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard)
+        )
     await callback.answer()

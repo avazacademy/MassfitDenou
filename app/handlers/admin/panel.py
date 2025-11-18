@@ -25,12 +25,19 @@ async def cmd_admin(message: Message):
 @router.callback_query(F.data == "admin_panel")
 async def show_admin_panel(callback: CallbackQuery, state: FSMContext):
     await state.clear()
-    await callback.message.edit_text(
+    text = (
         "🔐 <b>Admin Panelga xush kelibsiz</b>\n\n"
         "Bu yerda siz mahsulotlarni boshqarishingiz va statistikani ko'rishingiz mumkin.\n"
-        "Quyidagi variantlardan birini tanlang:",
-        reply_markup=get_admin_panel_keyboard()
+        "Quyidagi variantlardan birini tanlang:"
     )
+    
+    # Check if current message has photo (no text to edit)
+    if callback.message.photo:
+        await callback.message.delete()
+        await callback.message.answer(text, reply_markup=get_admin_panel_keyboard())
+    else:
+        await callback.message.edit_text(text, reply_markup=get_admin_panel_keyboard())
+    
     await callback.answer()
 
 

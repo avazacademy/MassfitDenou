@@ -43,18 +43,26 @@ async def view_all_products(callback: CallbackQuery):
         products = await get_all_products(session)
     
     if not products:
-        await callback.message.edit_text(
+        text = (
             "📦 <b>Mahsulotlar ro'yxati</b>\n\n"
-            "Mahsulotlar topilmadi. Birinchi mahsulotingizni qo'shing!",
-            reply_markup=get_admin_panel_keyboard()
+            "Mahsulotlar topilmadi. Birinchi mahsulotingizni qo'shing!"
         )
+        markup = get_admin_panel_keyboard()
     else:
-        await callback.message.edit_text(
+        text = (
             f"📦 <b>Mahsulotlar ro'yxati</b>\n\n"
             f"Jami mahsulotlar: {len(products)}\n"
-            "Batafsil ma'lumot olish uchun mahsulotni tanlang:",
-            reply_markup=get_product_list_keyboard(products)
+            "Batafsil ma'lumot olish uchun mahsulotni tanlang:"
         )
+        markup = get_product_list_keyboard(products)
+    
+    # Check if current message has photo (no text to edit)
+    if callback.message.photo:
+        await callback.message.delete()
+        await callback.message.answer(text, reply_markup=markup)
+    else:
+        await callback.message.edit_text(text, reply_markup=markup)
+    
     await callback.answer()
 
 
@@ -279,15 +287,22 @@ async def edit_product_menu(callback: CallbackQuery, state: FSMContext):
     no_img = "Rasm yo'q"
     has_img = "Ha"
     
-    await callback.message.edit_text(
+    text = (
         f"✏️ <b>Tahrirlanmoqda: {product.name}</b>\n\n"
         f"Joriy narx: {product.price} so'm\n"
         f"Joriy tur: {product.type}\n"
         f"Joriy tavsif: {product.description or no_desc}\n"
         f"Joriy rasm: {has_img if product.product_image else no_img}\n\n"
-        "Nimani tahrirlashni xohlaysiz?",
-        reply_markup=keyboard
+        "Nimani tahrirlashni xohlaysiz?"
     )
+    
+    # Check if current message has photo (no text to edit)
+    if callback.message.photo:
+        await callback.message.delete()
+        await callback.message.answer(text, reply_markup=keyboard)
+    else:
+        await callback.message.edit_text(text, reply_markup=keyboard)
+    
     await callback.answer()
 
 
@@ -506,13 +521,20 @@ async def confirm_delete_product(callback: CallbackQuery):
         await callback.answer("Mahsulot topilmadi!", show_alert=True)
         return
     
-    await callback.message.edit_text(
+    text = (
         f"⚠️ <b>O'chirishni tasdiqlash</b>\n\n"
         f"Ushbu mahsulotni o'chirishni xohlaysizmi?\n\n"
         f"📦 Nomi: {product.name}\n"
-        f"💰 Narxi: {product.price} so'm",
-        reply_markup=get_confirm_delete_keyboard(product_id)
+        f"💰 Narxi: {product.price} so'm"
     )
+    
+    # Check if current message has photo (no text to edit)
+    if callback.message.photo:
+        await callback.message.delete()
+        await callback.message.answer(text, reply_markup=get_confirm_delete_keyboard(product_id))
+    else:
+        await callback.message.edit_text(text, reply_markup=get_confirm_delete_keyboard(product_id))
+    
     await callback.answer()
 
 
