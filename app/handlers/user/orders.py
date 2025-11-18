@@ -429,13 +429,16 @@ async def confirm_order_yes_delivery(callback: CallbackQuery, state: FSMContext)
                 parse_mode=ParseMode.HTML
             )
             
-            # Send location
-            await bot.send_location(
-                chat_id=GROUP_ID,
-                latitude=data.get('latitude'),
-                longitude=data.get('longitude'),
-                reply_to_message_id=group_message.message_id
-            )
+            # Send location if available
+            latitude = data.get('latitude')
+            longitude = data.get('longitude')
+            if latitude is not None and longitude is not None:
+                await bot.send_location(
+                    chat_id=GROUP_ID,
+                    latitude=latitude,
+                    longitude=longitude,
+                    reply_to_message_id=group_message.message_id
+                )
             
             # Update order with group message id
             order.group_message_id = group_message.message_id
