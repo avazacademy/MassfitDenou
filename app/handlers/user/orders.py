@@ -227,7 +227,6 @@ async def process_delivery_location(message: Message, state: FSMContext):
         f"❓ Buyurtmangizni tasdiqlaysizmi?",
         reply_markup=keyboard
     )
-    await state.clear()
 
 
 @router.callback_query(F.data == "order_pickup")
@@ -303,7 +302,7 @@ async def confirm_pickup_branch(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "confirm_order_no")
-async def confirm_order_no(callback: CallbackQuery):
+async def confirm_order_no(callback: CallbackQuery, state: FSMContext):
     from app.database.requests import get_user_by_tg_id
     from app.database.order_requests import get_basket_items
     
@@ -340,6 +339,7 @@ async def confirm_order_no(callback: CallbackQuery):
         
         await callback.message.edit_text(text, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard))
     
+    await state.clear()
     await callback.answer()
 
 
@@ -429,13 +429,16 @@ async def confirm_order_yes_delivery(callback: CallbackQuery, state: FSMContext)
                 parse_mode=ParseMode.HTML
             )
             
-            # Send location
-            await bot.send_location(
-                chat_id=GROUP_ID,
-                latitude=data.get('latitude'),
-                longitude=data.get('longitude'),
-                reply_to_message_id=group_message.message_id
-            )
+            # Send location if available
+            latitude = data.get('latitude')
+            longitude = data.get('longitude')
+            if latitude is not None and longitude is not None:
+                await bot.send_location(
+                    chat_id=GROUP_ID,
+                    latitude=latitude,
+                    longitude=longitude,
+                    reply_to_message_id=group_message.message_id
+                )
             
             # Update order with group message id
             order.group_message_id = group_message.message_id
